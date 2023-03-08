@@ -97,6 +97,19 @@
                 <li>If the tree consists of a single leaf, test whether it is a goal node.</li>
             </ol>
         </ul>
+        <br><br>
+        <p class="hence">
+            Hence, to decide whether any non-leaf node n is solvable (part of a path to a goal node), all you have to do is test whether any child of n is solvable. This is done recursively, on each child of n. In the above code, this is done by the lines
+        </p>
+        <pre class="each">
+            for each child c of n { 
+                if solve(c) succeeds, return true 
+             } 
+             return false
+        </pre>
+        <p class="ndpart">
+            Eventually the recursion will "bottom" out at a leaf node. If the leaf node is a goal node, it is solvable; if the leaf node is not a goal node, it is not solvable. This is our base case. In the above code, this is done by the lines
+        </p>
     </p>
 
 </body>
