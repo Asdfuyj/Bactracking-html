@@ -7,15 +7,17 @@
     <link rel="stylesheet" href="index.css">
     <title>backtracking</title>
 </head>
-<body>
+
+<p>
     <h1>Backtracking</h1>
     <p class="first">
     Backtracking is a form of recursion.<br><br>
     The usual scenario is that you are faced with a number of options, and you must choose one of these. After you make your choice you will get a new set of options; just what set of options you get depends on what choice you made. This procedure is repeated over and over until you reach a final state. If you made a good sequence of choices, your final state is a goal state; if you didn't, it isn't<br><br>
    Conceptually, you start at the root of a tree; the tree probably has some good leaves and some bad leaves, though it may be that the leaves are all good or all bad. You want to get to a good leaf. At each node, beginning with the root, you choose one of its children to move to, and you keep this up until you get to a leaf. <br><br>
    Suppose you get to a bad leaf. You can backtrack to continue the search for a good leaf by revoking your most recent choice, and trying out the next option in that set of options. If you run out of options, revoke the choice that got you here, and try another choice at that node. If you end up at the root with no options left, there are no good leaves to be found.
+</p>
    <p class="example">This needs an example.</p>
-   <center><img src="Image_root.png" alt=""></center>
+   <img class="image" src="Image_root.png" alt="">
    <br>
    <p class="p1">1.Starting at Root, your options are A and B. You choose A.</p>
    <p class="p1">2.At A, your options are C and D. You choose C</p>
@@ -94,23 +96,67 @@
             <li class="tree">To search a tree:</li>
             <ol class="node">
                 <li>If the tree consists of a single leaf, test whether it is a goal node.</li>
-                <li>If the tree consists of a single leaf, test whether it is a goal node.</li>
+                <li>Otherwise, search the subtrees until you find one containing a goal node, or until you have searched them all unsuccessfully..</li>
             </ol>
         </ul>
-        <br><br>
-        <p class="hence">
-            Hence, to decide whether any non-leaf node n is solvable (part of a path to a goal node), all you have to do is test whether any child of n is solvable. This is done recursively, on each child of n. In the above code, this is done by the lines
+        <br><br><br><br>
+        <p class="non">
+            Non-recursive backtracking, using a stack
         </p>
-        <pre class="each">
-            for each child c of n { 
-                if solve(c) succeeds, return true 
-             } 
-             return false
-        </pre>
-        <p class="ndpart">
-            Eventually the recursion will "bottom" out at a leaf node. If the leaf node is a goal node, it is solvable; if the leaf node is not a goal node, it is not solvable. This is our base case. In the above code, this is done by the lines
-        </p>
-    </p>
 
+        <p class="rather">
+            Backtracking is a rather typical recursive algorithm, and any recursive algorithm can be rewritten as a stack algorithm. In fact, that is how your recursive algorithms are translated into machine or assembly language.
+        </p>
+        
+        <pre class="border4">
+            boolean solve(Node n) { 
+                put node n on the stack; 
+                 while the stack is not empty {
+                  if the node at the top of the stack is a leaf { 
+                        if it is a goal node, return true 
+                        else pop it off the stack 
+                    } 
+                    else {
+                         if the node at the top of the stack has untried children 
+                           push the next untried child onto the stack
+                            else pop the node off the stack 
+                    
+                    } return false 
+                  }
+        </pre>
+        
+        <p class="longpath">
+            Starting from the root, the only nodes that can be pushed onto the stack are the children of the node currently on the top of the stack, and these are only pushed on one child at a time; hence, the nodes on the stack at all times describe a valid path in the tree. Nodes are removed from the stack only when it is known that they have no goal nodes among their descendents. Therefore, if the root node gets removed (making the stack empty), there must have been no goal nodes at all, and no solution to the problem. <br><br>
+            When the stack algorithm terminates successfully, the nodes on the stack form (in reverse order) a path from the root to a goal node. <br><br> 
+            Similarly, when the recursive algorithm finds a goal node, the path information is embodied (in reverse order) in the sequence of recursive calls. Thus as the recursion unwinds, the path can be recovered one node at a time, by (for instance) printing the node at the current level, or storing it in an array. <br><br>
+            Here is the recursive backtracking algorithm, modified slightly to print (in reverse order) the nodes along the successful path:
+        </p>
+        <pre class="border5">
+            boolean solve(Node n) {
+             if n is a leaf node {
+              if the leaf is a goal node { 
+                print n
+                return true 
+              } 
+                else return false 
+            } else { 
+                for each child c of n {
+                  if solve(c) succeeds {
+                     print n 
+                     return true 
+                  } 
+                } 
+                return false 
+             } 
+            }
+        </pre>
+
+        <p class="simple">Keeping backtracking simple</p>
+
+        <p class="spath">
+            All of these versions of the backtracking algorithm are pretty simple, but when applied to a real problem, they can get pretty cluttered up with details. Even determining whether the node is a leaf can be complex: for example, if the path represents a series of moves in a chess endgame problem, the leaves are the checkmate and stalemate solutions To keep the program clean, therefore, tests like this should be buried in methods. In a chess game, for example, you could test whether a node is a leaf by writing a gameOver method (or you could even call it isLeaf). This method would encapsulate all the ugly details of figuring out whether any possible moves remain. Notice that the backtracking altorithms require us to keep track, for each node on the current path, which of its children have been tried already (so we don't have to try them again). In the above code we made this look simple, by just saying for each child c of n. In reality, it may be difficult to figure out what the possible children are, and there may be no obvious way to step through them. In chess, for example, a node can represent one arrangement of pieces on a chessboard, and each child of that node can represent the arrangement after some piece has made a legal move. How do you find these children, and how do you keep track of which ones you've already examined? The most straightforward way to keep track of which children of the node have been tried is as follows: Upon initial entry to the node (that is, when you first get there from above), make a list of all its children. As you try each child, take it off the list. When the list is empty, there are no remaining untried children, and you can return "failure." This is a simple approach, but it may require quite a lot of additional work. There is an easier way to keep track of which children have been tried, if you can define an ordering on the children. If there is an ordering, and you know which child you just tried, you can determine which child to try next. For example, you might be able to number the children 1 through n, and try them in numerical order. Then, if you have just tried child k, you know that you have already tried children 1 through k-1, and you have not yet tried children k+1 through n. Or, if you are trying to color a map with just four colors, you can always try red first, then yellow, then green, then blue. If child yellow fails, you know to try child green next. If you are searching a maze, you can try choices in the order left, straight, right (or perhaps north, east, south, west). It isn't always easy to find a simple way to order the children of a node. In the chess game example, you might number your pieces (or perhaps the squares of the board) and try them in numerical order; but in addition each piece may also have several moves, and these must also be ordered. You can probably find some way to order the children of a node. If the ordering scheme is simple enough, you should use it; but if it is too cumbersome, you are better off keeping a list of untried children.
+        </p>
+
+ 
 </body>
 </html>
